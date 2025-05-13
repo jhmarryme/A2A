@@ -709,7 +709,7 @@ def test_send_message_streaming_artifact_update_response() -> None:
     artifact = Artifact(
         artifactId='artifact-123',
         name='result_data',
-        parts=[Part(text_part), Part(data_part)],
+        parts=[Part(root=text_part), Part(root=data_part)],
     )
     task_artifact_update_event_data: dict[str, Any] = {
         'artifact': artifact,

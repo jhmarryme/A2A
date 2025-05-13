@@ -1,9 +1,8 @@
-import click
-
 from agent_executor import HelloWorldAgentExecutor
 
-from a2a.server import A2AServer
-from a2a.server.request_handlers import DefaultA2ARequestHandler
+from a2a.server.apps import A2AStarletteApplication
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import (
     AgentAuthentication,
     AgentCapabilities,
@@ -12,10 +11,7 @@ from a2a.types import (
 )
 
 
-@click.command()
-@click.option('--host', 'host', default='localhost')
-@click.option('--port', 'port', default=9999)
-def main(host: str, port: int):
+if __name__ == '__main__':
     skill = AgentSkill(
         id='hello_world',
         name='Returns hello world',
@@ -36,13 +32,14 @@ def main(host: str, port: int):
         authentication=AgentAuthentication(schemes=['public']),
     )
 
-    request_handler = DefaultA2ARequestHandler(
-        agent_executor=HelloWorldAgentExecutor()
+    request_handler = DefaultRequestHandler(
+        agent_executor=HelloWorldAgentExecutor(),
+        task_store=InMemoryTaskStore(),
     )
 
-    server = A2AServer(agent_card=agent_card, request_handler=request_handler)
-    server.start(host=host, port=port)
+    server = A2AStarletteApplication(
+        agent_card=agent_card, http_handler=request_handler
+    )
+    import uvicorn
 
-
-if __name__ == '__main__':
-    main()
+    uvicorn.run(server.build(), host='0.0.0.0', port=9999)

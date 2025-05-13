@@ -99,7 +99,7 @@ class A2AClient:
             id=request_id, params=MessageSendParams.model_validate(payload)
         )
         return SendMessageResponse(
-            **await self._send_request(A2ARequest(request))
+            **await self._send_request(A2ARequest(root=request))
         )
 
     async def send_message_streaming(
@@ -147,7 +147,9 @@ class A2AClient:
         request = GetTaskRequest(
             id=request_id, params=TaskQueryParams.model_validate(payload)
         )
-        return GetTaskResponse(**await self._send_request(A2ARequest(request)))
+        return GetTaskResponse(
+            **await self._send_request(A2ARequest(root=request))
+        )
 
     async def cancel_task(
         self, payload: dict[str, Any], request_id: str | int = uuid4().hex
@@ -156,7 +158,7 @@ class A2AClient:
             id=request_id, params=TaskIdParams.model_validate(payload)
         )
         return CancelTaskResponse(
-            **await self._send_request(A2ARequest(request))
+            **await self._send_request(A2ARequest(root=request))
         )
 
     async def set_task_callback(
@@ -167,7 +169,7 @@ class A2AClient:
             params=TaskPushNotificationConfig.model_validate(payload),
         )
         return SetTaskPushNotificationConfigResponse(
-            **await self._send_request(A2ARequest(request))
+            **await self._send_request(A2ARequest(root=request))
         )
 
     async def get_task_callback(
@@ -177,5 +179,5 @@ class A2AClient:
             id=request_id, params=TaskIdParams.model_validate(payload)
         )
         return GetTaskPushNotificationConfigResponse(
-            **await self._send_request(A2ARequest(request))
+            **await self._send_request(A2ARequest(root=request))
         )

@@ -81,7 +81,7 @@ def prepare_response_object(
     """Helper method to build appropriate JSONRPCResponse object for RPC methods."""
     if isinstance(response, success_response_types):
         return response_type(
-            success_payload_type(id=request_id, result=response)  # type:ignore
+            root=success_payload_type(id=request_id, result=response)  # type:ignore
         )
 
     if isinstance(response, A2AError | JSONRPCError):
@@ -90,7 +90,7 @@ def prepare_response_object(
     # If consumer_data is not an expected success type and not an error,
     # it's an invalid type of response from the agent for this specific method.
     response = A2AError(
-        InvalidAgentResponseError(
+        root=InvalidAgentResponseError(
             message='Agent returned invalid type response for this method'
         )
     )

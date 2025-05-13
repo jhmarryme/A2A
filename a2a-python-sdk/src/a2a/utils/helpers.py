@@ -73,12 +73,12 @@ def append_artifact_to_task(task: Task, event: TaskArtifactUpdateEvent) -> None:
         # We received a chunk to append, but we don't have an existing artifact.
         # we will ignore this chunk
         logger.warning(
-            f'Received append=True for nonexistent artifact index {artifact_id} in task {task.id}. Ignoring chunk.'
+            f'Received append=True for non-existent artifact index {artifact_id} in task {task.id}. Ignoring chunk.'
         )
 
 
 def build_text_artifact(text: str, artifact_id: str) -> Artifact:
     """Helper to convert agent text to artifact."""
     text_part = TextPart(text=text)
-    part = Part(text_part)
+    part = Part(root=text_part)
     return Artifact(parts=[part], artifactId=artifact_id)
