@@ -11,6 +11,7 @@ from a2a.types import (
     TaskQueryParams,
     UnsupportedOperationError,
 )
+from a2a.utils.errors import ServerError
 
 
 class RequestHandler(ABC):
@@ -34,7 +35,7 @@ class RequestHandler(ABC):
     async def on_message_send_stream(
         self, request: MessageSendParams
     ) -> AsyncGenerator[Event, None]:
-        raise UnsupportedOperationError()
+        raise ServerError(error=UnsupportedOperationError())
         yield
 
     @abstractmethod
@@ -53,5 +54,5 @@ class RequestHandler(ABC):
     async def on_resubscribe_to_task(
         self, request: TaskIdParams
     ) -> AsyncGenerator[Event, None]:
-        raise UnsupportedOperationError()
+        raise ServerError(error=UnsupportedOperationError())
         yield

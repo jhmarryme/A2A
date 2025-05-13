@@ -5,6 +5,7 @@ from a2a.types import (
     InvalidParamsError,
     InvalidRequestError,
     JSONParseError,
+    JSONRPCError,
     MethodNotFoundError,
     PushNotificationNotSupportedError,
     TaskNotCancelableError,
@@ -31,7 +32,8 @@ class ServerError(Exception):
     def __init__(
         self,
         error: (
-            JSONParseError
+            JSONRPCError
+            | JSONParseError
             | InvalidRequestError
             | MethodNotFoundError
             | InvalidParamsError

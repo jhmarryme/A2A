@@ -12,7 +12,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
-from a2a.server.events.event_queue import Event
 from a2a.server.request_handlers.jsonrpc_handler import (
     JSONRPCHandler,
     RequestHandler,
@@ -157,7 +156,7 @@ class A2AStarletteApplication:
         ):
             handler_result = self.handler.on_message_send_stream(request_obj)
         elif isinstance(request_obj, TaskResubscriptionRequest):
-            handler_result = self.handler.on_resubscribe(request_obj)
+            handler_result = self.handler.on_resubscribe_to_task(request_obj)
 
         return self._create_response(handler_result)
 
@@ -176,15 +175,15 @@ class A2AStarletteApplication:
             case SendMessageRequest():
                 handler_result = await self.handler.on_message_send(request_obj)
             case CancelTaskRequest():
-                handler_result = await self.handler.on_cancel(request_obj)
+                handler_result = await self.handler.on_cancel_task(request_obj)
             case GetTaskRequest():
                 handler_result = await self.handler.on_get_task(request_obj)
             case SetTaskPushNotificationConfigRequest():
-                handler_result = await self.handler.on_set_push_notification(
+                handler_result = await self.handler.set_push_notification(
                     request_obj
                 )
             case GetTaskPushNotificationConfigRequest():
-                handler_result = await self.handler.on_get_push_notification(
+                handler_result = await self.handler.get_push_notification(
                     request_obj
                 )
             case _:
@@ -223,7 +222,7 @@ class A2AStarletteApplication:
         if isinstance(handler_result, AsyncGenerator):
             # Result is a stream of SendStreamingMessageResponse objects
             async def event_generator(
-                stream: AsyncGenerator[Event, None],
+                stream: AsyncGenerator[SendStreamingMessageResponse, None],
             ) -> AsyncGenerator[dict[str, str], None]:
                 async for item in stream:
                     yield {'data': item.root.model_dump_json(exclude_none=True)}

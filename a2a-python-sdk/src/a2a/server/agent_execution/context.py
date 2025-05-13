@@ -1,10 +1,18 @@
 import uuid
 
-from a2a.types import Message, MessageSendParams, Task, TextPart
+from a2a.types import (
+    InvalidParamsError,
+    Message,
+    MessageSendParams,
+    Task,
+    TextPart,
+)
 from a2a.utils.errors import ServerError
 
 
 class RequestContext:
+    """Request Context."""
+
     def __init__(
         self,
         request: MessageSendParams | None = None,
@@ -17,7 +25,7 @@ class RequestContext:
         self._task_id = task_id
         self._context_id = context_id
         self._current_task = task
-        self._related_tasks: related_tasks
+        self._related_tasks = related_tasks
         # If the task id and context id were provided, make sure they
         # match the request. Otherwise, create them
         if self._params:
@@ -37,6 +45,9 @@ class RequestContext:
                 self._check_or_generate_context_id()
 
     def get_user_input(self, delimiter='\n') -> str:
+        if not self._params:
+            return ''
+
         parts = []
         for part in self._params.message.parts:
             if isinstance(part.root, TextPart):
@@ -55,29 +66,35 @@ class RequestContext:
         return self._related_tasks
 
     @property
-    def current_task(self) -> Task:
+    def current_task(self) -> Task | None:
         return self._current_task
 
     @current_task.setter
-    def current_task(self, task: Task):
+    def current_task(self, task: Task) -> None:
         self._current_task = task
 
     @property
-    def task_id(self) -> str:
+    def task_id(self) -> str | None:
         return self._task_id
 
     @property
-    def context_id(self) -> str:
+    def context_id(self) -> str | None:
         return self._context_id
 
-    def _check_or_generate_task_id(self):
+    def _check_or_generate_task_id(self) -> None:
+        if not self._params:
+            return
+
         if not self._task_id and not self._params.message.taskId:
             self._params.message.taskId = str(uuid.uuid4())
         if self._params.message.taskId:
             self._task_id = self._params.message.taskId
 
-    def _check_or_generate_context_id(self):
+    def _check_or_generate_context_id(self) -> None:
+        if not self._params:
+            return
+
         if not self._context_id and not self._params.message.contextId:
-            self._params.message.taskId = str(uuid.uuid4())
+            self._params.message.contextId = str(uuid.uuid4())
         if self._params.message.contextId:
             self._context_id = self._params.message.contextId

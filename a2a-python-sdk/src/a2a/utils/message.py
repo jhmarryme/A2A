@@ -11,6 +11,7 @@ from a2a.types import (
 def new_agent_text_message(
     text: str, context_id: str | None = None, task_id: str | None = None
 ) -> Message:
+    """Creates a new agent text message."""
     return Message(
         role=Role.agent,
         parts=[Part(root=TextPart(text=text))],

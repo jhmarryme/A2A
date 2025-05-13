@@ -260,6 +260,7 @@ class TestJSONRPCtHandler(unittest.IsolatedAsyncioTestCase):
                 ),
             )
             response = await handler.on_message_send(request)
+
             self.assertIsInstance(response.root, JSONRPCErrorResponse)
             assert response.root.error == UnsupportedOperationError()  # type: ignore
             mock_agent_executor.execute.assert_called_once()

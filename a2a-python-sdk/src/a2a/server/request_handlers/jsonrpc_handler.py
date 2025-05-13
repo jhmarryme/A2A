@@ -2,6 +2,7 @@ import logging
 
 from collections.abc import AsyncIterable
 
+from a2a.server.request_handlers.request_handler import RequestHandler
 from a2a.server.request_handlers.response_helpers import (
     prepare_response_object,
 )
@@ -12,9 +13,11 @@ from a2a.types import (
     CancelTaskSuccessResponse,
     GetTaskPushNotificationConfigRequest,
     GetTaskPushNotificationConfigResponse,
+    GetTaskPushNotificationConfigSuccessResponse,
     GetTaskRequest,
     GetTaskResponse,
     GetTaskSuccessResponse,
+    InternalError,
     JSONRPCErrorResponse,
     Message,
     SendMessageRequest,
@@ -28,12 +31,12 @@ from a2a.types import (
     SetTaskPushNotificationConfigSuccessResponse,
     Task,
     TaskArtifactUpdateEvent,
+    TaskNotFoundError,
+    TaskPushNotificationConfig,
     TaskResubscriptionRequest,
     TaskStatusUpdateEvent,
 )
 from a2a.utils.errors import ServerError
-
-from .request_handler import RequestHandler
 
 
 logger = logging.getLogger(__name__)
@@ -74,7 +77,9 @@ class JSONRPCHandler:
             )
         except ServerError as e:
             return SendMessageResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # message/stream
@@ -99,13 +104,15 @@ class JSONRPCHandler:
                 )
         except ServerError as e:
             yield SendStreamingMessageResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # tasks/cancel
     async def on_cancel_task(
         self, request: CancelTaskRequest
-    ) -> CancelTaskResponse | None:
+    ) -> CancelTaskResponse:
         try:
             task = await self.request_handler.on_cancel_task(request.params)
             if task:
@@ -116,9 +123,12 @@ class JSONRPCHandler:
                     CancelTaskSuccessResponse,
                     CancelTaskResponse,
                 )
+            raise ServerError(error=TaskNotFoundError())
         except ServerError as e:
             return CancelTaskResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # tasks/resubscribe
@@ -143,7 +153,9 @@ class JSONRPCHandler:
                 )
         except ServerError as e:
             yield SendStreamingMessageResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # tasks/pushNotification/get
@@ -151,19 +163,23 @@ class JSONRPCHandler:
         self, request: GetTaskPushNotificationConfigRequest
     ) -> GetTaskPushNotificationConfigResponse:
         try:
-            config = await self.request_handler.on_get_push_notification(
-                request.params
+            config = (
+                await self.request_handler.on_get_task_push_notification_config(
+                    request.params
+                )
             )
             return prepare_response_object(
                 request.id,
                 config,
                 (TaskPushNotificationConfig,),
-                GetTaskPushNotificationSuccessResponse,
-                GetTaskPushNotificationResponse,
+                GetTaskPushNotificationConfigSuccessResponse,
+                GetTaskPushNotificationConfigResponse,
             )
         except ServerError as e:
-            return GetTaskPushNotificationResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+            return GetTaskPushNotificationConfigResponse(
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # tasks/pushNotification/set
@@ -171,8 +187,10 @@ class JSONRPCHandler:
         self, request: SetTaskPushNotificationConfigRequest
     ) -> SetTaskPushNotificationConfigResponse:
         try:
-            config = await self.request_handler.on_set_push_notification(
-                request.params
+            config = (
+                await self.request_handler.on_set_task_push_notification_config(
+                    request.params
+                )
             )
             return prepare_response_object(
                 request.id,
@@ -183,22 +201,27 @@ class JSONRPCHandler:
             )
         except ServerError as e:
             return SetTaskPushNotificationConfigResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )
 
     # tasks/get
     async def on_get_task(self, request: GetTaskRequest) -> GetTaskResponse:
         try:
             task = await self.request_handler.on_get_task(request.params)
-            result = prepare_response_object(
-                request.id,
-                task,
-                (Task,),
-                GetTaskSuccessResponse,
-                GetTaskResponse,
-            )
-            return result
+            if task:
+                return prepare_response_object(
+                    request.id,
+                    task,
+                    (Task,),
+                    GetTaskSuccessResponse,
+                    GetTaskResponse,
+                )
+            raise ServerError(error=TaskNotFoundError())
         except ServerError as e:
             return GetTaskResponse(
-                root=JSONRPCErrorResponse(id=request.id, error=e.error)
+                root=JSONRPCErrorResponse(
+                    id=request.id, error=e.error if e.error else InternalError()
+                )
             )

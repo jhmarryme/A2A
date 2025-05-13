@@ -47,7 +47,9 @@ class ResultAggregator:
             await self.task_manager.process(event)
             yield event
 
-    async def consume_all(self, consumer: EventConsumer) -> Event:
+    async def consume_all(
+        self, consumer: EventConsumer
+    ) -> Task | Message | None:
         """Processes the entire event stream and returns the final result."""
         async for event in consumer.consume_all():
             if isinstance(event, Message):
@@ -59,7 +61,7 @@ class ResultAggregator:
     async def consume_and_emit_task(
         self, consumer: EventConsumer
     ) -> AsyncGenerator[Event, None]:
-        """Processes the event stream and emits the current state of the task"""
+        """Processes the event stream and emits the current state of the task."""
         async for event in consumer.consume_all():
             if isinstance(event, Message):
                 self._current_task_or_message = event

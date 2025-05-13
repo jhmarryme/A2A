@@ -33,7 +33,9 @@ class EventConsumer:
             logger.warning('Event queue was empty in consume_one.')
             raise ServerError(
                 InternalError(message='Agent did not return any response')
-            )
+            ) from None
+
+        logger.debug(f'Dequeued event of type: {type(event)} in consume_one.')
 
         self.queue.task_done()
 
