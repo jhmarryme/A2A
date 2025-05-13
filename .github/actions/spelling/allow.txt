@@ -42,6 +42,7 @@ PLW
 PTH
 RUF
 SLF
+URLTo
 Upserting
 Urke
 VBORw
@@ -92,6 +93,7 @@ fsv
 fyi
 gcp
 genai
+genkit
 georoute
 gettickets
 gle
