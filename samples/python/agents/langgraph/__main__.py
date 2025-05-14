@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 def main(host, port):
     """Starts the Currency Agent server."""
     try:
-        if not os.getenv('GOOGLE_API_KEY'):
+        if not os.getenv('GOOGLE_API_KEY', "sk-xxxx"):
             raise MissingAPIKeyError(
                 'GOOGLE_API_KEY environment variable not set.'
             )

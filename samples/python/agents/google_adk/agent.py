@@ -3,6 +3,7 @@ import random
 
 from typing import Any, Optional
 
+from google.adk.models.lite_llm import LiteLlm
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
@@ -131,7 +132,7 @@ class ReimbursementAgent(AgentWithTaskManager):
     def _build_agent(self) -> LlmAgent:
         """Builds the LLM agent for the reimbursement agent."""
         return LlmAgent(
-            model='gemini-2.0-flash-001',
+            model=LiteLlm(model="openai/qwen-plus"),
             name='reimbursement_agent',
             description=(
                 'This agent handles the reimbursement process for the employees'

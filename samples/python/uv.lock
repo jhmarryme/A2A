@@ -30,6 +30,7 @@ dependencies = [
     { name = "a2a-samples" },
     { name = "aiohttp" },
     { name = "python-dotenv" },
+    { name = "litellm" },
 ]
 
 [package.metadata]

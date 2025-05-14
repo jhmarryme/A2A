@@ -19,6 +19,8 @@ from google.adk.agents.readonly_context import ReadonlyContext
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
+from google.adk.models.lite_llm import LiteLlm
+
 from .remote_agent_connection import RemoteAgentConnections, TaskUpdateCallback
 
 
@@ -59,7 +61,7 @@ class HostAgent:
 
     def create_agent(self) -> Agent:
         return Agent(
-            model='gemini-2.0-flash-001',
+            model=LiteLlm(model="openai/qwen-plus"),
             name='host_agent',
             instruction=self.root_instruction,
             before_model_callback=self.before_model_callback,
