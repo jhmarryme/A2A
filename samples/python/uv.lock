@@ -30,7 +30,6 @@ dependencies = [
     { name = "a2a-samples" },
     { name = "aiohttp" },
     { name = "python-dotenv" },
-    { name = "litellm" },
 ]
 
 [package.metadata]
@@ -49,6 +48,7 @@ dependencies = [
     { name = "click" },
     { name = "google-adk" },
     { name = "google-genai" },
+    { name = "litellm" },
     { name = "python-dotenv" },
 ]
 
@@ -58,6 +58,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.1.8" },
     { name = "google-adk", specifier = ">=0.0.3" },
     { name = "google-genai", specifier = ">=1.9.0" },
+    { name = "litellm", specifier = ">=1.67.1" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
 ]
 
